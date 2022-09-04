@@ -37,12 +37,9 @@ const postSchema = new Schema({
   },
   // a blog post can have multiple comments, so it should be in a array.
   // all comments info should be kept in this array of this blog post.
-  comments: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Comment',
-    },
-  ],
+  comments: {
+    type: Array,
+  },
 });
 
 postSchema.virtual('url').get(function () {

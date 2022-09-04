@@ -1,6 +1,6 @@
 const Post = require('../models/posts');
 const jwt = require('jsonwebtoken');
-
+const mongoose = require('mongoose');
 const SECRET_KEY = 'key'; // private key for jsonWebToken
 
 // get all posts
@@ -184,6 +184,69 @@ const unlikePost = (req, res) => {
   }
 };
 
+// Make a comment
+const createComment = (req, res) => {
+  let postID = req.params.id;
+
+  const { userId, username, text } = req.body;
+  const comment = {
+    post_id: postID,
+    comment_id: new mongoose.Types.ObjectId(),
+    text: text,
+    author: {
+      userId: userId,
+      username: username,
+    },
+  };
+  if (!postID || postID === '') {
+    return res.status(401).json({
+      message: 'NEED_POST_ID',
+    });
+  }
+  if (!userId || userId == '') {
+    return res.status(401).json({
+      message: 'NEED_USER_ID',
+    });
+  }
+  if (!username || username == '') {
+    return res.status(401).json({
+      message: 'NEED_USERNAME',
+    });
+  }
+  if (!text || text == '') {
+    return res.status(401).json({
+      message: 'COMMENT_EMPTY',
+    });
+  }
+
+  jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
+    if (err) {
+      res.status(401).json({
+        message: 'INVALID_TOKEN',
+      });
+    } else {
+      // #################################################################
+      let post = await Post.findByIdAndUpdate(
+        postID,
+        { $push: { comments: comment } },
+        {
+          returnOriginal: false,
+        }
+      );
+      if (post !== null) {
+        res.status(201).json({
+          message: 'COMMENT_ADDED',
+          post: post,
+        });
+      } else {
+        res.status(404).json({
+          message: 'POST_NOT_FOUND',
+        });
+      }
+    }
+  });
+};
+
 //Edit a post
 const editPost = (req, res) => {
   let postID = req.params.id;
@@ -248,6 +311,7 @@ module.exports = {
   createPost,
   likePost,
   unlikePost,
+  createComment,
   editPost,
   deletePost,
 };

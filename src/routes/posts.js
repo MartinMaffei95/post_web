@@ -6,6 +6,7 @@ const {
   createPost,
   likePost,
   unlikePost,
+  createComment,
   editPost,
   deletePost,
 } = require('../controllers/posts');
@@ -25,7 +26,9 @@ router.post('/:id/like_post', verifyToken, likePost); // :id = post id, in body 
 
 // Unlike a post
 router.post('/:id/unlike_post', verifyToken, unlikePost);
+
 // Make a comment in a post
+router.post('/:id/make_comment', verifyToken, createComment);
 
 //modify post
 router.put('/:id', verifyToken, editPost);
