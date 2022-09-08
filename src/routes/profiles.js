@@ -9,10 +9,10 @@ router.get('/', (req, res) => {
   res.send('TODOS LOS MENSAJES');
 });
 
-//get my user
-router.get('/me', (req, res) => {
-  res.send('My Profile');
-});
+// //get my user
+// router.get('/me', (req, res) => {
+//   res.send('My Profile');
+// });
 
 //Getting a specific profile
 router.get('/:id', verifyToken, getProfile);

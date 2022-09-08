@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const postSchema = new Schema({
-  // _id: {
-  //   type: mongoose.Types.ObjectId,
-  // },
+const commentSchema = new Schema({
+  // comment_id: { type: mongoose.Types.ObjectId },
   text: {
     type: String,
     trim: true,
@@ -22,6 +20,11 @@ const postSchema = new Schema({
       required: true,
     },
   },
+  replieTo: {
+    type: mongoose.Types.ObjectId,
+    trim: true,
+    required: true,
+  },
   likes: {
     type: Array,
   },
@@ -35,21 +38,8 @@ const postSchema = new Schema({
   },
   // a blog post can have multiple comments, so it should be in a array.
   // all comments info should be kept in this array of this blog post.
-  comments: {
-    type: Array,
-  },
-  isReply: {
-    type: Boolean,
-  },
-  replyTo: {
-    type: mongoose.Types.ObjectId,
-  },
-  repliesLength: { type: Number },
+  replies: { type: Array },
 });
 
-postSchema.virtual('url').get(function () {
-  return '/post/' + this._id;
-});
-
-const Post = mongoose.model('Post', postSchema);
-module.exports = Post;
+const Comment = mongoose.model('Comment', commentSchema);
+module.exports = Comment;
