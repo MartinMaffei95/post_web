@@ -16,6 +16,7 @@ const login = (req, res) => {
           //User logged!
           //now
           //Creating Token with jsw
+          console.log(result._id);
           jwt.sign({ user: result }, SECRET_KEY, (err, token) => {
             res.status(200).send({
               message: 'LOGIN_SUCCESS',

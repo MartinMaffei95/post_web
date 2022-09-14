@@ -26,11 +26,11 @@ const postSchema = new Schema({
     type: Array,
   },
   createdAt: {
-    type: Date,
+    type: Number,
     default: Date.now,
   },
   updatedAt: {
-    type: Date,
+    type: Number,
     default: Date.now,
   },
   // a blog post can have multiple comments, so it should be in a array.

@@ -15,6 +15,7 @@ const profileSchema = new Schema({
       message: 'TAKEN_USERNAME',
     },
   },
+  name: { type: String },
   email: {
     type: String,
     lowercase: true,
@@ -35,9 +36,25 @@ const profileSchema = new Schema({
     type: String,
     required: [true, 'PASSWORD is required'],
   },
+  birthdate: { type: Number },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+    },
+  },
+  biography: { type: String },
   image: {
     type: String,
     required: false,
+  },
+  createdAt: {
+    type: Number,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Number,
+    default: Date.now,
   },
 });
 

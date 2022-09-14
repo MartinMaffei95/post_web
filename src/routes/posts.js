@@ -22,7 +22,7 @@ router.get('/:id', verifyToken, getPost);
 router.post('/', verifyToken, createPost);
 
 // Make a comment in a post
-router.post('/:id/', verifyToken, createPost);
+router.post('/:id', verifyToken, createPost);
 
 // Like a post
 router.post('/:id/like_post', verifyToken, likePost); // :id = post id, in body send user id

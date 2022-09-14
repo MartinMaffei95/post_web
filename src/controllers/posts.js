@@ -106,164 +106,144 @@ const getPostsWithProfile = async (req, res) => {
 //Create a new post
 const createPost = (req, res) => {
   const postID = req.params.id;
+  console.log(req.params);
   const { author, text, isReply } = req.body;
-  // ## its a post
-  if (!postID) {
-    const post = new Post({
-      // title: req.body.title,
-      text: text,
-      author: {
-        username: author.username,
-        userID: author.userID,
-      },
-      isReply: false,
-    });
-    post.save((err, result) => {
-      if (err) {
-        return res.send('No se creo el post : ' + err);
-      } else {
-        return res.send('Post creado!!');
-      }
-    });
-  }
-  // ## its a comment
-  if (postID) {
-    //## validate  Id
-    if (!isValidID(postID)) {
-      return res.status(404).json({
-        message: 'Error en el id',
+  jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
+    // ## its a post
+    if (!postID) {
+      const post = new Post({
+        text: text,
+        author: {
+          username: userData.user.username,
+          userID: userData.user._id,
+        },
+        isReply: false,
+      });
+      post.save((err, result) => {
+        if (err) {
+          return res.send('No se creo el post : ' + err);
+        } else {
+          return res.send('Post creado!!');
+        }
       });
     }
-
-    if (!postID || postID === '') {
-      return res.status(401).json({
-        message: 'NEED_POST_ID',
-      });
-    }
-    if (!author.userID || author.userID == '') {
-      return res.status(401).json({
-        message: 'NEED_USER_ID',
-      });
-    }
-    if (!author.username || author.username == '') {
-      return res.status(401).json({
-        message: 'NEED_USERNAME',
-      });
-    }
-    if (!text || text == '') {
-      return res.status(401).json({
-        message: 'COMMENT_EMPTY',
-      });
-    }
-
-    // Primero crear el post(comentario) y luego editar el post al que estamos comentando y sumarle 1 en repliesLength
-    const post = new Post({
-      text: text,
-      author: {
-        username: author.username,
-        userID: author.userID,
-      },
-      isReply: true,
-      replyTo: postID,
-      repliesLength: 0,
-    });
-    post.save(async (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          message: 'SERVER_ERROR',
-          error: err,
-        });
-      } else {
-        const postReply = await Post.findByIdAndUpdate(postID, {
-          $inc: { repliesLength: 1 },
-          returnOriginal: true,
-        });
-
-        return res.status(200).json({
-          message: 'POST_CREATED',
-          post: post,
+    // ## its a comment
+    if (postID) {
+      //## validate  Id
+      if (!isValidID(postID)) {
+        return res.status(404).json({
+          message: 'Error en el id',
         });
       }
-    });
-  }
+
+      if (!postID || postID === '') {
+        return res.status(401).json({
+          message: 'NEED_POST_ID',
+        });
+      }
+
+      if (!text || text == '') {
+        return res.status(401).json({
+          message: 'COMMENT_EMPTY',
+        });
+      }
+
+      // Primero crear el post(comentario) y luego editar el post al que estamos comentando y sumarle 1 en repliesLength
+      const post = new Post({
+        text: text,
+        author: {
+          username: userData.user.username,
+          userID: userData.user._id,
+        },
+        isReply: true,
+        replyTo: postID,
+        repliesLength: 0,
+      });
+      post.save(async (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            message: 'SERVER_ERROR',
+            error: err,
+          });
+        } else {
+          const postReply = await Post.findByIdAndUpdate(postID, {
+            $inc: { repliesLength: 1 },
+            returnOriginal: true,
+          });
+
+          return res.status(200).json({
+            message: 'POST_CREATED',
+            post: post,
+          });
+        }
+      });
+    }
+  });
 };
 
 // Like a post
 const likePost = (req, res) => {
   let postID = req.params.id;
-  let userID = req.body.id;
 
-  if (!userID) {
-    res.status(401).json({
-      message: 'NEED_USER_ID',
-    });
-  } else {
-    jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
-      if (err) {
-        res.status(401).json({
-          message: 'INVALID_TOKEN',
-        });
-      } else {
-        // #################################################################
-        let post = await Post.findById(postID);
-        if (post !== null) {
-          if (post.likes.includes(userID)) {
-            res.status(401).json({
-              message: 'LIKE_ALREDY_EXIST',
-              post: post,
-            });
-          } else {
-            post.likes.push(userID);
-            post.save();
-            res.status(201).json({
-              message: 'LIKE_ADDED',
-              post: post,
-            });
-          }
+  jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
+    const { user } = userData;
+    if (err) {
+      res.status(401).json({
+        message: 'INVALID_TOKEN',
+      });
+    } else {
+      // #################################################################
+      let post = await Post.findById(postID);
+      if (post !== null) {
+        if (post.likes.includes(user._id)) {
+          res.status(401).json({
+            message: 'LIKE_ALREDY_EXIST',
+            post: post,
+          });
         } else {
-          res.status(404).json({
-            message: 'POST_NOT_FOUND',
+          post.likes.push(user._id);
+          post.save();
+          res.status(201).json({
+            message: 'LIKE_ADDED',
+            post: post,
           });
         }
+      } else {
+        res.status(404).json({
+          message: 'POST_NOT_FOUND',
+        });
       }
-    });
-  }
+    }
+  });
 };
 
 // Unike a post
 const unlikePost = (req, res) => {
   let postID = req.params.id;
-  let userID = req.body.id;
 
-  if (!userID) {
-    res.status(401).json({
-      message: 'NEED_USER_ID',
-    });
-  } else {
-    jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
-      if (err) {
-        res.status(401).json({
-          message: 'INVALID_TOKEN',
+  jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
+    if (err) {
+      res.status(401).json({
+        message: 'INVALID_TOKEN',
+      });
+    } else {
+      // #################################################################
+      let post = await Post.findById(postID);
+      if (post !== null) {
+        const likes = post.likes.filter((user) => user !== userData.user._id);
+        post.likes = likes;
+        post.save();
+        res.status(201).json({
+          message: 'LIKE_DELETED',
+          post: post,
         });
       } else {
-        // #################################################################
-        let post = await Post.findById(postID);
-        if (post !== null) {
-          const likes = post.likes.filter((user) => user !== userID);
-          post.likes = likes;
-          post.save();
-          res.status(201).json({
-            message: 'LIKE_DELETED',
-            post: post,
-          });
-        } else {
-          res.status(404).json({
-            message: 'POST_NOT_FOUND',
-          });
-        }
+        res.status(404).json({
+          message: 'POST_NOT_FOUND',
+        });
       }
-    });
-  }
+    }
+  });
 };
 
 // Make a comment
@@ -440,13 +420,12 @@ const editPost = (req, res) => {
         }
       ); // Getting the post for Id (postID) and change text
       if (post !== null) {
-        console.log(post);
-        res.status(201).json({
+        return res.status(201).json({
           message: 'POST_FOUND',
           post: post,
         });
       } else {
-        res.status(404).json({
+        return res.status(404).json({
           message: 'POST_NOT_FOUND',
         });
       }
@@ -457,6 +436,11 @@ const editPost = (req, res) => {
 //Delete a post // Need same Id bteween post and profile
 const deletePost = (req, res) => {
   let postID = req.params.id;
+  if (!isValidID(postID)) {
+    return res.status(404).json({
+      message: 'Error en el id',
+    });
+  }
 
   jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
     if (err) {
@@ -465,12 +449,20 @@ const deletePost = (req, res) => {
       });
     } else {
       let post = await Post.findByIdAndDelete(postID); // Getting the post for Id (postID) and change text
+      // post its a reply?
+
       if (post !== null) {
-        res.status(200).json({
+        if (post.isReply) {
+          await Post.findByIdAndUpdate(post.replyTo, {
+            $inc: { repliesLength: -1 },
+            returnOriginal: true,
+          });
+        }
+        return res.status(200).json({
           message: 'POST_DELETED',
         });
       } else {
-        res.status(404).json({
+        return res.status(404).json({
           message: 'POST_NOT_FOUND',
         });
       }
