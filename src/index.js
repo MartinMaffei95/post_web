@@ -1,12 +1,12 @@
 const express = require('express');
+require('dotenv').config();
+
 const app = express();
 const cors = require('cors');
 
 const authRoutes = require('./routes/auth'); // Connection with Router
 const profileRoutes = require('./routes/profiles'); // Connection with Router
 const postRoutes = require('./routes/posts'); // Connection with Router
-
-require('dotenv').config();
 
 require('./connection'); // Connection with DB
 app.use(
