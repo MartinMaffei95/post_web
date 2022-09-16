@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const Profile = require('../models/profile');
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'key'; // private key for jsonWebToken
+const SECRET_KEY = process.env.SECRET_KEY; // private key for jsonWebToken
 
 const login = (req, res) => {
   Profile.findOne({ username: req.body.username }, (err, result) => {

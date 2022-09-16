@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Comment = require('../models/comment');
 const { findById } = require('../models/posts');
-const SECRET_KEY = 'key'; // private key for jsonWebToken
+const SECRET_KEY = process.env.SECRET_KEY; // private key for jsonWebToken
 
 // get all posts
 const getAllPosts = async (req, res) => {

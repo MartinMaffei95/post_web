@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const Profile = require('../models/profile');
 const Post = require('../models/posts');
 const { isValidID, isValidDate } = require('./utils');
-const SECRET_KEY = 'key'; // private key for jsonWebToken
+const SECRET_KEY = process.env.SECRET_KEY; // private key for jsonWebToken
 
 // // Get my user Profile
 // const getUserMyUser = (req, res) => {
