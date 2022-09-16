@@ -33,7 +33,7 @@ const getProfile = (req, res) => {
       });
     } else {
       const profileData = await Profile.findById(profileID); // Getting the profile
-      console.log(profileData);
+      // console.log(profileData);
       const postByAuthorID = await Post.find({
         'author.userID': profileID,
       }) // Getting all posts

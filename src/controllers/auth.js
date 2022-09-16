@@ -16,7 +16,6 @@ const login = (req, res) => {
           //User logged!
           //now
           //Creating Token with jsw
-          console.log(result._id);
           jwt.sign({ user: result }, SECRET_KEY, (err, token) => {
             res.status(200).send({
               message: 'LOGIN_SUCCESS',
@@ -44,7 +43,7 @@ const register = (req, res) => {
   //encripting the password with BCRYPT and create USER
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if (err) {
-      console.log('BCRYPT ERROR:', 'PASS send on BODY', req.body.password, err);
+      // console.log('BCRYPT ERROR:', 'PASS send on BODY', req.body.password, err);
       return res.status(400).send({
         message: 'BAD_REQUEST',
         error: err,
@@ -68,7 +67,7 @@ const register = (req, res) => {
           message: 'USER_CREATED',
           user: result,
         });
-        console.log(result);
+        // console.log(result);
       }
     });
   });

@@ -106,7 +106,7 @@ const getPostsWithProfile = async (req, res) => {
 //Create a new post
 const createPost = (req, res) => {
   const postID = req.params.id;
-  console.log(req.params);
+  // console.log(req.params);
   const { author, text, isReply } = req.body;
   jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
     // ## its a post
@@ -438,7 +438,7 @@ const deletePost = (req, res) => {
   let postID = req.params.id;
   if (!isValidID(postID)) {
     return res.status(404).json({
-      message: 'Error en el id',
+      message: 'INVALID_ID',
     });
   }
 
@@ -448,24 +448,32 @@ const deletePost = (req, res) => {
         message: 'INVALID_TOKEN',
       });
     } else {
-      let post = await Post.findByIdAndDelete(postID); // Getting the post for Id (postID) and change text
-      // post its a reply?
-
-      if (post !== null) {
-        if (post.isReply) {
-          await Post.findByIdAndUpdate(post.replyTo, {
-            $inc: { repliesLength: -1 },
-            returnOriginal: true,
+      Post.findById(postID, async function (err, postToDetlete) {
+        if (postToDetlete.author.userID === userData.user._id) {
+          //this post belong to the user
+          let post = await Post.findByIdAndDelete(postID);
+          // post its a reply?
+          if (post !== null) {
+            if (post.isReply) {
+              await Post.findByIdAndUpdate(post.replyTo, {
+                $inc: { repliesLength: -1 },
+                returnOriginal: true,
+              });
+            }
+            return res.status(200).json({
+              message: 'POST_DELETED',
+            });
+          } else {
+            return res.status(404).json({
+              message: 'POST_NOT_FOUND',
+            });
+          }
+        } else {
+          return res.status(400).json({
+            message: 'BAD_REQUEST',
           });
         }
-        return res.status(200).json({
-          message: 'POST_DELETED',
-        });
-      } else {
-        return res.status(404).json({
-          message: 'POST_NOT_FOUND',
-        });
-      }
+      });
     }
   });
 };
