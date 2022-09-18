@@ -449,7 +449,7 @@ const deletePost = (req, res) => {
       });
     } else {
       Post.findById(postID, async function (err, postToDetlete) {
-        if (postToDetlete.author.userID === userData.user._id) {
+        if (postToDetlete?.author?.userID === userData?.user._id) {
           //this post belong to the user
           let post = await Post.findByIdAndDelete(postID);
           // post its a reply?

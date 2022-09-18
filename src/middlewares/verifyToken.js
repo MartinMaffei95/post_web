@@ -1,5 +1,4 @@
 const verifyToken = (req, res, next) => {
-  console.log('Verificando token');
   const autorization_header = req.headers['authorization'];
   if (autorization_header !== undefined) {
     const token = autorization_header.split(' ')[1];

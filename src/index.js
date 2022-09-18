@@ -27,5 +27,5 @@ app.use('/profile', profileRoutes); //USER ROUTES
 app.use('/post', postRoutes); //POST ROUTES
 
 app.listen(app.get('port'), () => {
-  console.log('App running in port ' + app.get('port'));
+  console.log(app.get('port'));
 });
