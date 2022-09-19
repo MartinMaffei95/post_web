@@ -1,5 +1,4 @@
 const Post = require('../models/posts');
-const { isValidID } = require('./utils');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Comment = require('../models/comment');
@@ -37,6 +36,7 @@ const getAllPosts = async (req, res) => {
 // get scpecific post
 const getPost = (req, res) => {
   let postID = req.params.id;
+
   if (!postID) {
     return res.status(401).json({
       message: 'NEED_POST_ID',
@@ -106,7 +106,6 @@ const getPostsWithProfile = async (req, res) => {
 //Create a new post
 const createPost = (req, res) => {
   const postID = req.params.id;
-  // console.log(req.params);
   const { author, text, isReply } = req.body;
   jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
     // ## its a post
@@ -130,17 +129,6 @@ const createPost = (req, res) => {
     // ## its a comment
     if (postID) {
       //## validate  Id
-      if (!isValidID(postID)) {
-        return res.status(404).json({
-          message: 'Error en el id',
-        });
-      }
-
-      if (!postID || postID === '') {
-        return res.status(401).json({
-          message: 'NEED_POST_ID',
-        });
-      }
 
       if (!text || text == '') {
         return res.status(401).json({
@@ -251,17 +239,6 @@ const createComment = (req, res) => {
   let postID = req.params.id;
   const { userID, username, text } = req.body;
 
-  if (!isValidID(postID)) {
-    return res.status(404).json({
-      message: 'Error.',
-    });
-  }
-
-  if (!postID || postID === '') {
-    return res.status(401).json({
-      message: 'NEED_POST_ID',
-    });
-  }
   if (!userID || userID == '') {
     return res.status(401).json({
       message: 'NEED_USER_ID',
@@ -334,12 +311,6 @@ const createComment = (req, res) => {
 const createReplie = (req, res) => {
   let commentID = req.params.id;
   const { userID, username, text } = req.body;
-
-  if (!isValidID(commentID)) {
-    return res.status(404).json({
-      message: 'Error.',
-    });
-  }
 
   if (!commentID || commentID === '') {
     return res.status(401).json({
@@ -436,11 +407,6 @@ const editPost = (req, res) => {
 //Delete a post // Need same Id bteween post and profile
 const deletePost = (req, res) => {
   let postID = req.params.id;
-  if (!isValidID(postID)) {
-    return res.status(404).json({
-      message: 'INVALID_ID',
-    });
-  }
 
   jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
     if (err) {
