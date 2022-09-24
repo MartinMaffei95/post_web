@@ -48,6 +48,16 @@ const profileSchema = new Schema({
     type: String,
     required: false,
   },
+  filters: {
+    blockedPost: {
+      type: String,
+      trim: true,
+    },
+    blockedUsers: {
+      type: String,
+      trim: true,
+    },
+  },
   createdAt: {
     type: Number,
     default: Date.now,

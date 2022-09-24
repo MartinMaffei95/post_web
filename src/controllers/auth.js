@@ -41,6 +41,13 @@ const login = (req, res) => {
 const register = (req, res) => {
   const api = `https://avatars.dicebear.com/api/pixel-art/1255`;
   //encripting the password with BCRYPT and create USER
+  if (req?.body?.password?.length <= 4 || req?.body?.password?.length > 12) {
+    return res.status(500).send({
+      message: 'INVALID_PASSWORD',
+      errors:
+        'password must be at least 4 characters and at least 12 characters',
+    });
+  }
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if (err) {
       // console.log('BCRYPT ERROR:', 'PASS send on BODY', req.body.password, err);
