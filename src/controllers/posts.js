@@ -2,6 +2,7 @@ const Post = require('../models/posts');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Comment = require('../models/comment');
+const Profile = require('../models/profile');
 const { findById } = require('../models/posts');
 const SECRET_KEY = process.env.SECRET_KEY; // private key for jsonWebToken
 
@@ -211,7 +212,7 @@ const unlikePost = (req, res) => {
 
   jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
     if (err) {
-      res.status(401).json({
+      return res.status(401).json({
         message: 'INVALID_TOKEN',
       });
     } else {
@@ -307,71 +308,6 @@ const createComment = (req, res) => {
   });
 };
 
-//Make a replie
-const createReplie = (req, res) => {
-  let commentID = req.params.id;
-  const { userID, username, text } = req.body;
-
-  if (!commentID || commentID === '') {
-    return res.status(401).json({
-      message: 'NEED_COMMENT_ID',
-    });
-  }
-  if (!userID || userID == '') {
-    return res.status(401).json({
-      message: 'NEED_USER_ID',
-    });
-  }
-  if (!username || username == '') {
-    return res.status(401).json({
-      message: 'NEED_USERNAME',
-    });
-  }
-  if (!text || text == '') {
-    return res.status(401).json({
-      message: 'COMMENT_EMPTY',
-    });
-  }
-
-  // const comment = new Comment({
-  //   replieTo: commentID,
-  //   // comment_id: mongoose.Types.ObjectId(''),
-  //   text: text,
-  //   author: {
-  //     userID: userID,
-  //     username: username,
-  //   },
-  // });
-  // comment.save();
-
-  jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
-    if (err) {
-      res.status(401).json({
-        message: 'INVALID_TOKEN',
-      });
-    } else {
-      // #################################################################
-      let comment = await Comment.findByIdAndUpdate(
-        commentID,
-        { $push: { comments: comment } },
-        {
-          returnOriginal: false,
-        }
-      );
-      if (post !== null) {
-        res.status(201).json({
-          message: 'COMMENT_ADDED',
-          post: post,
-        });
-      } else {
-        res.status(404).json({
-          message: 'POST_NOT_FOUND',
-        });
-      }
-    }
-  });
-};
-
 //Edit a post
 const editPost = (req, res) => {
   let postID = req.params.id;
@@ -444,6 +380,97 @@ const deletePost = (req, res) => {
   });
 };
 
+//Save post in FAVORITES
+const saveFavoritePost = (req, res) => {
+  let postID = req.params.id; // id from post to save
+
+  jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
+    if (err) {
+      res.status(401).json({
+        message: 'INVALID_TOKEN',
+        error: err,
+      });
+    } else {
+      let post = await Post.findById(postID); //If post exists saved the id on profile
+      if (post !== null) {
+        //First verify if post is alredy saved
+
+        let user = await Profile.findById(userData.user._id);
+        if (user.favoritePosts.includes(postID)) {
+          return res.status(401).json({
+            message: 'LIKE_ALREDY_EXIST',
+            post: user,
+          });
+        }
+        user = await Profile.findByIdAndUpdate(
+          userData.user._id,
+          {
+            $push: {
+              favoritePosts: postID,
+            },
+          },
+          {
+            returnOriginal: false,
+          }
+        );
+        if (user !== null) {
+          console.log(user);
+          return res.status(201).json({
+            message: 'POST_SAVED',
+            post: post,
+            user: user,
+          });
+        }
+      } else {
+        return res.status(404).json({
+          message: 'POST_NOT_FOUND',
+        });
+      }
+    }
+  });
+};
+
+// Unsave a favorite post
+const unsaveFavoritePost = (req, res) => {
+  let postID = req.params.id;
+
+  jwt.verify(req.token, SECRET_KEY, async (err, userData) => {
+    if (err) {
+      res.status(401).json({
+        message: 'INVALID_TOKEN',
+      });
+    } else {
+      // First found the post for  validate exists
+      let post = await Post.findById(postID); //If post exists saved the id on profile
+      if (post !== null) {
+        let user = await Profile.findById(userData.user._id); //find MY profile and filter favorites
+        if (user !== null) {
+          const newFavorites = user.favoritePosts.filter(
+            (post) => post !== postID
+          );
+          user = await Profile.findByIdAndUpdate(
+            userData.user._id,
+            {
+              favoritePosts: newFavorites,
+            },
+            {
+              returnOriginal: false,
+            }
+          );
+          return res.status(201).json({
+            message: 'FAVORITE_POST_DELETE',
+            user: user,
+          });
+        }
+      } else {
+        return res.status(404).json({
+          message: 'POST_NOT_FOUND',
+        });
+      }
+    }
+  });
+};
+
 module.exports = {
   getAllPosts,
   getPostsWithProfile,
@@ -454,4 +481,6 @@ module.exports = {
   createComment,
   editPost,
   deletePost,
+  saveFavoritePost,
+  unsaveFavoritePost,
 };

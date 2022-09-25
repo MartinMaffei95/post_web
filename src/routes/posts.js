@@ -9,6 +9,8 @@ const {
   createComment,
   editPost,
   deletePost,
+  saveFavoritePost,
+  unsaveFavoritePost,
 } = require('../controllers/posts');
 const { verifyToken } = require('../middlewares/verifyToken');
 const { verifyID } = require('../middlewares/verifyID');
@@ -30,6 +32,12 @@ router.post('/:id/like_post', verifyToken, verifyID, likePost); // :id = post id
 
 // Unlike a post
 router.post('/:id/unlike_post', verifyToken, verifyID, unlikePost);
+
+//Save a FAVORITE Post
+router.post('/:id/save_post', verifyToken, verifyID, saveFavoritePost);
+
+//Unsave a FAVORITE Post
+router.post('/:id/unsave_post', verifyToken, verifyID, unsaveFavoritePost);
 
 // Make a comment in a post
 router.post('/:id/make_comment', verifyToken, verifyID, createComment);

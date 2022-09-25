@@ -58,6 +58,9 @@ const profileSchema = new Schema({
       trim: true,
     },
   },
+  favoritePosts: {
+    type: Array,
+  },
   createdAt: {
     type: Number,
     default: Date.now,
