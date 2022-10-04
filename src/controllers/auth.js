@@ -38,6 +38,7 @@ const login = (req, res) => {
     }
   });
 };
+
 const register = (req, res) => {
   const api = `https://avatars.dicebear.com/api/pixel-art/1255`;
   //encripting the password with BCRYPT and create USER

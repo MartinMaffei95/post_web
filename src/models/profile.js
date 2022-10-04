@@ -61,6 +61,8 @@ const profileSchema = new Schema({
   favoritePosts: {
     type: Array,
   },
+  followers: { type: mongoose.Types.ObjectId },
+  follow: { type: mongoose.Types.ObjectId },
   createdAt: {
     type: Number,
     default: Date.now,

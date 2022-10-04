@@ -91,11 +91,11 @@ const editProfile = (req, res) => {
           message: 'INVALID_IMAGE',
         });
       }
-      if (!isValidDate(birthdate)) {
-        return res.status(401).json({
-          message: 'INVALID_DATE_FORMAT',
-        });
-      }
+      // if (!isValidDate(birthdate)) {
+      //   return res.status(401).json({
+      //     message: 'INVALID_DATE_FORMAT',
+      //   });
+      // }
 
       let profileData = await Profile.findByIdAndUpdate(
         profileID,
@@ -137,6 +137,12 @@ const editProfile = (req, res) => {
     }
   });
 };
+
+//follow a user
+
+//unfollow a user
+
+//follow a user
 
 module.exports = {
   getProfile,

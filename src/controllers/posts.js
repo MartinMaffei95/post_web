@@ -121,9 +121,14 @@ const createPost = (req, res) => {
       });
       post.save((err, result) => {
         if (err) {
-          return res.send('No se creo el post : ' + err);
+          return res.status(401).json({
+            message: 'ERROR_SAVING_POST',
+            error: err,
+          });
         } else {
-          return res.send('Post creado!!');
+          return res.status(401).json({
+            message: 'POST_CREATED',
+          });
         }
       });
     }

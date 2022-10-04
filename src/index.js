@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const app = express();
 const cors = require('cors');
-
+const router = express.Router();
 const authRoutes = require('./routes/auth'); // Connection with Router
 const profileRoutes = require('./routes/profiles'); // Connection with Router
 const postRoutes = require('./routes/posts'); // Connection with Router
@@ -17,6 +17,10 @@ app.use(
     optionsSuccessStatus: 204,
   })
 );
+
+app.use('/hello', (req, res) => {
+  res.send('Bienvenido. Server On. In PORT :' + process.env.PORT);
+});
 
 app.set('port', process.env.PORT || 3000);
 
