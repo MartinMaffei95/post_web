@@ -18,11 +18,14 @@ app.use(
   })
 );
 
+app.use('/', (req, res) => {
+  res.send('FIRST PAGE');
+});
 app.use('/hello', (req, res) => {
   res.send('Bienvenido. Server On.');
 });
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 2000);
 
 app.use(express.json());
 
